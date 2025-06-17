@@ -8,11 +8,11 @@ from jwt import InvalidTokenError
 from typing import Annotated
 from ..core.database import get_db
 from .crud import get_user_by_email
-from .models import UserInDB
 from typing import Optional
 SECRET_KEY = "7a50a8d4d9432b7c86353fff242f5d0874fc9ea8ad0c4489c4bba3f92e31e2b6"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -21,6 +21,7 @@ class TokenData(BaseModel):
 
 class Token(BaseModel):
     access_token: str
+    refresh_token: str
     token_type: str
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):

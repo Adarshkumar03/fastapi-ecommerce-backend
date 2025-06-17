@@ -11,3 +11,5 @@ app = FastAPI(title="My API", version="1.0")
 app.include_router(auth_routes.router, prefix="/auth", tags=["Auth"])
 
 
+
+

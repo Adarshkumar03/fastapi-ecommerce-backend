@@ -1,7 +1,48 @@
 from bcrypt import hashpw, gensalt
 from sqlalchemy import Column
+import smtplib
+from email.mime.text import MIMEText
+import os
+from typing import Optional
 
- 
+subject = "Reset Password"
+body = "Here is the token to reset your password.  Please use it within the next 15 minutes."
+recipients = []
+password = os.getenv("EMAIL_PASSWORD")
+def send_reset_email(recipient_email: str, subject: str = subject, body: str = body, token: Optional[str] = None):
+    body = f"""
+Hi,
+
+We received a request to reset your password.
+
+Please use the following token to reset your password. This token is valid for 15 minutes:
+
+Token: {token}
+
+If you didn't request this, you can safely ignore this email.
+
+Thanks,
+Your Team
+"""
+    sender = os.getenv("EMAIL_SENDER", "your_email@gmail.com")
+    msg = MIMEText(body)
+    msg["Subject"] = subject
+    msg["From"] = f"Your App Team <{sender}>"
+    msg["To"] = recipient_email
+
+    if password is None:
+        print("Error: EMAIL_PASSWORD environment variable is not set.")
+        return
+
+    try:
+        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+            server.starttls()
+            server.login(sender, password)
+            server.sendmail(sender, [recipient_email], msg.as_string())
+            print("Email sent successfully")
+    except Exception as e:
+        print(f"Error sending email: {e}")
+
 def password_validity(password: str) -> bool:
     """
     Validate the password based on specific criteria.

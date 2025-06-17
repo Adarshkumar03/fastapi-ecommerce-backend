@@ -23,5 +23,9 @@ class UserOut(BaseModel):
     role: UserRole
 
     class Config:
-        orm_mode = True    
+        orm_mode = True
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
 
