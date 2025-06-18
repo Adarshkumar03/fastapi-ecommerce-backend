@@ -8,9 +8,12 @@ from jwt import InvalidTokenError
 from typing import Annotated
 from ..core.database import get_db
 from .crud import get_user_by_email
+from .models import User
 from typing import Optional
-SECRET_KEY = "7a50a8d4d9432b7c86353fff242f5d0874fc9ea8ad0c4489c4bba3f92e31e2b6"
-ALGORITHM = "HS256"
+import os
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 7
 
@@ -41,6 +44,8 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Se
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
+        if not ALGORITHM:
+            raise HTTPException(status_code=500, detail="JWT ALGORITHM is not set in environment variables")
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email = payload.get("sub")
         if email is None:
@@ -55,4 +60,13 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Se
     user = get_user_by_email(db, token_data.email)
     if user is None:
         raise credentials_exception
+    return user
+
+def admin_required(user: User = Depends(get_current_user)):
+    if str(user.role) != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to perform this action",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     return user

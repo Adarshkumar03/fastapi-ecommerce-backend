@@ -30,12 +30,12 @@ async def signin_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm
     if not db_user:
         raise HTTPException(status_code=404, detail={"message": "User not found", "error":"True", "status_code": 404})
     if check_password(db_user.hashed_password, form_data.password):
-        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token_expires = timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES))
         access_token = create_access_token(
             data={"sub": db_user.email},
             expires_delta=access_token_expires
         )
-        refresh_token_expires = timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+        refresh_token_expires = timedelta(days=int(REFRESH_TOKEN_EXPIRE_DAYS))
         refresh_token = create_access_token(
             data={"sub": db_user.email},
             expires_delta=refresh_token_expires
