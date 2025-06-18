@@ -62,9 +62,6 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Se
         raise credentials_exception
     return user
 
-def auth_user(user: User = Depends(get_current_user)):
-    return user 
-
 def admin_required(user: User = Depends(get_current_user)):
     if str(user.role) != "admin":
         raise HTTPException(
