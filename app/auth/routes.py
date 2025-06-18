@@ -1,6 +1,6 @@
 from ..core.database import get_db
 from .utils import check_password, send_reset_email, generate_password_hash
-from .crud import create_user, get_all_users, get_user_by_email, create_password_reset_token, is_token_valid, mark_token_as_used
+from .crud import create_user, get_all_users, get_user_by_email, create_password_reset_token, is_token_valid, mark_token_as_used, get_user_by_username
 from .schema import UserCreate, UserOut, ResetPasswordRequest
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import OAuth2PasswordRequestForm
@@ -26,7 +26,8 @@ async def signin_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm
     Searches the database for a user with the provided credentials.
     If the user is found, returns the JWT access token for authentication.
     """
-    db_user =  get_user_by_email(db, form_data.username)
+    db_user =  get_user_by_username(db, form_data.username)
+    print(f"DB User: {db_user}")
     if not db_user:
         raise HTTPException(status_code=404, detail={"message": "User not found", "error":"True", "status_code": 404})
     if check_password(db_user.hashed_password, form_data.password):

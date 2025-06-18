@@ -1,7 +1,5 @@
 from sqlalchemy import Column, Integer, String, Float
-from sqlalchemy.ext.declarative import declarative_base
-
-Base = declarative_base()
+from ..core.database import Base
 
 class Products(Base):
     __tablename__ = "products"
@@ -10,5 +8,6 @@ class Products(Base):
     description = Column(String(500), nullable=True)
     price = Column(Float, nullable=False)
     stock = Column(Integer, default=0)
+    category = Column(String(50), nullable=True)
     image_url = Column(String(255), nullable=True)
     

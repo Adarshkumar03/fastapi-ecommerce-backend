@@ -17,7 +17,7 @@ ALGORITHM = os.getenv("ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 7
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/signin")
 
 class TokenData(BaseModel):
     email: Optional[str] = None
@@ -62,11 +62,23 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Se
         raise credentials_exception
     return user
 
+def auth_user(user: User = Depends(get_current_user)):
+    return user 
+
 def admin_required(user: User = Depends(get_current_user)):
     if str(user.role) != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You do not have permission to perform this action",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return user
+
+def user_required(user: User = Depends(get_current_user)):
+    if str(user.role) != "user":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only users have permission",
             headers={"WWW-Authenticate": "Bearer"},
         )
     return user

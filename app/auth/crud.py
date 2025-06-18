@@ -10,8 +10,6 @@ def create_user(db: Session, user: UserCreate) -> UserCreate:
     """
     Create a new user in the database.
     """
-    if not db:
-        raise ValueError("Database session is not available")
     hashed_password = generate_password_hash(user.password)
     existing_user = get_user_by_email(db, user.email)
     if existing_user:
@@ -44,13 +42,17 @@ def get_user_by_email(db: Session, email: str) -> User:
     """
     return db.query(User).filter(User.email == email).first()
 
+def get_user_by_username(db: Session, username: str) -> User:
+    """
+    Retrieve a user by username from the database.
+    """
+    return db.query(User).filter(User.username == username).first()
+
 def create_password_reset_token(db: Session, user_id: Column[int], token: str, expiration_time: float):
     """
     Create a password reset token for a user.
     """
     from .models import PasswordResetTokens
-    if not db:
-        raise ValueError("Database session is not available")
     
     reset_token = PasswordResetTokens(
         user_id=user_id,
