@@ -60,6 +60,11 @@ EMAIL_PASSWORD=your_app_password_here
 SENDER_EMAIL=your_email_here
 ```
 
+### Seed the data
+```
+python products/seed.py
+```
+
 ### 5. Run the App
 ```
 uvicorn app.main:app --reload
@@ -104,8 +109,6 @@ http://127.0.0.1:8000/docs
 ### Orders (User)
 - GET /orders
 - GET /orders/{order_id}
-
----
 
 ---
 
