@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from ..core.database import get_db
+from app.core.database import get_db
 from app.products.models import Products
 
 def seed_products():
@@ -35,11 +35,12 @@ def seed_products():
     db.add_all(products)
     db.commit()
     db.close()
+
     try:
         next(db_gen)
     except StopIteration:
         pass
-    print("✅ Seed data inserted successfully!")
+
     print("✅ Seed data inserted successfully!")
 
 if __name__ == "__main__":
