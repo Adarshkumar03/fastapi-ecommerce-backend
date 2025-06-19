@@ -47,7 +47,7 @@ async def signin_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm
         )
     raise HTTPException(status_code=401, detail={"message": "Invalid password", "error":"True", "status_code": 401})
 
-@router.get("/me")
+@router.get("/me", response_model=UserOut)
 async def current_user(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     return user
 

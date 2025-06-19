@@ -57,9 +57,12 @@ def public_get_all_products(db: Session, category: Optional[str] = None,
     return total_count, products
 
 def public_search_products(db:Session, keyword: str):
+    if not keyword:
+        return 0, []
     query = db.query(Products).filter(
         Products.name.ilike(f"%{keyword}%") | 
-        Products.description.ilike(f"%{keyword}%")
+        Products.description.ilike(f"%{keyword}%") |
+        Products.category.ilike(f"%{keyword}%")
     )
     total_count = query.count()
     products = query.all() 
