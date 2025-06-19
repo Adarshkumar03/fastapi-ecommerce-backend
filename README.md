@@ -62,7 +62,7 @@ SENDER_EMAIL=your_email_here
 
 ### Seed the data
 ```
-python products/seed.py
+python app/products/seed.py
 ```
 
 ### 5. Run the App
