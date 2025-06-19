@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from .schema import ProductCreate, ProductUpdate, ProductOut
 from .crud import create_product, admin_get_all_products, get_product_by_id, update_product, delete_product, public_get_all_products, public_search_products
 from ..core.database import get_db
-from ..auth.security import admin_required, auth_user
+from ..auth.security import admin_required, get_current_user
 from typing import Optional
 from sqlalchemy.orm import Session
 
@@ -51,7 +51,7 @@ async def product_delete(product_id: int, db: Session = Depends(get_db)):
 
 public_router = APIRouter()
 
-@public_router.get("/products", tags=["Products"], dependencies=[Depends(auth_user)])
+@public_router.get("/products", tags=["Products"], dependencies=[Depends(get_current_user)])
 async def get_all_products(category: Optional[str] = None,
     min_price: Optional[float] = None,
     max_price: Optional[float] = None,
@@ -77,7 +77,7 @@ async def get_all_products(category: Optional[str] = None,
         "products": products
     }
 
-@public_router.get("/products/search", tags=["Products"], dependencies=[Depends(auth_user)])
+@public_router.get("/products/search", tags=["Products"], dependencies=[Depends(get_current_user)])
 async def search_products(keyword: str, db: Session = Depends(get_db)):
     total_count, products = public_search_products(db, keyword)
     return {
@@ -85,7 +85,7 @@ async def search_products(keyword: str, db: Session = Depends(get_db)):
         "products": products
     }
     
-@public_router.get("/products/{product_id}", tags=["Products"], dependencies=[Depends(auth_user)], response_model=ProductOut)
+@public_router.get("/products/{product_id}", tags=["Products"], dependencies=[Depends(get_current_user)], response_model=ProductOut)
 async def get_product_details(product_id: int, db: Session = Depends(get_db)):
     product = get_product_by_id(db, product_id)
     if not product:
