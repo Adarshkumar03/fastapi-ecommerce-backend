@@ -1,10 +1,8 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
+from ..core.database import Base
 from sqlalchemy.orm import relationship
 from enum import Enum
-
-Base = declarative_base()
-
+from datetime import datetime, timezone
 class OrderStatus(str, Enum):
     PENDING = "pending"
     PAID = "paid"
@@ -16,7 +14,9 @@ class Orders(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     total_amount = Column(Float, nullable=False)
     status = Column(String(20), default=OrderStatus.PENDING.value)
-    created_at = Column(Integer, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    
+    
     
 class OrderItems(Base):
     __tablename__ = "order_items"
