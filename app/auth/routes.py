@@ -5,7 +5,7 @@ from .schema import UserCreate, UserOut, ResetPasswordRequest
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
-from .security import create_access_token, Token, ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS
+from .security import create_access_token, Token, ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS, get_current_user
 from sqlalchemy.orm import Session
 from datetime import datetime, timezone
 from .models import User, PasswordResetTokens
@@ -27,7 +27,6 @@ async def signin_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm
     If the user is found, returns the JWT access token for authentication.
     """
     db_user =  get_user_by_username(db, form_data.username)
-    print(f"DB User: {db_user}")
     if not db_user:
         raise HTTPException(status_code=404, detail={"message": "User not found", "error":"True", "status_code": 404})
     if check_password(db_user.hashed_password, form_data.password):
@@ -47,6 +46,10 @@ async def signin_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm
             token_type="bearer"
         )
     raise HTTPException(status_code=401, detail={"message": "Invalid password", "error":"True", "status_code": 401})
+
+@router.get("/me")
+async def current_user(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    return user
 
 @router.post("/signup", response_model=UserOut)
 async def signup(user: UserCreate, db: Session = Depends(get_db)):
