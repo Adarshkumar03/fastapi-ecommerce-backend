@@ -36,8 +36,8 @@ This project is a secure, modular and fully functional E-commerce Backend built 
 
 ### 1. Clone Repository
 ```
-git clone <repo_url>
-cd <repo_folder>
+git clone https://github.com/Adarshkumar03/fastapi-ecommerce-backend.git
+cd fastapi-ecommerce-backend
 ```
 
 ### 2. Create Virtual Environment
