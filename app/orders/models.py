@@ -16,7 +16,7 @@ class Orders(Base):
     status = Column(String(20), default=OrderStatus.PENDING.value)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     
-    
+    items = relationship("OrderItems", back_populates="order")
     
 class OrderItems(Base):
     __tablename__ = "order_items"

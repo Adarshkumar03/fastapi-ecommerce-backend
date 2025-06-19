@@ -40,12 +40,20 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
+        detail={
+            "error": True,
+            "message": "Could not validate credentials",
+            "code": 401
+        },
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
         if not ALGORITHM:
-            raise HTTPException(status_code=500, detail="JWT ALGORITHM is not set in environment variables")
+            raise HTTPException(status_code=500,detail={
+                    "error": True,
+                    "message": "JWT ALGORITHM is not set in environment variables",
+                    "code": 500
+                })
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email = payload.get("sub")
         if email is None:
@@ -54,7 +62,11 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Se
     except InvalidTokenError:
         raise credentials_exception
     if not db:
-        raise HTTPException(status_code=500, detail="Database connection failed")
+        raise HTTPException(status_code=500, detail={
+                "error": True,
+                "message": "Database connection failed",
+                "code": 500
+            })
     if token_data.email is None:
         raise credentials_exception
     user = get_user_by_email(db, token_data.email)
@@ -66,7 +78,11 @@ def admin_required(user: User = Depends(get_current_user)):
     if str(user.role) != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You do not have permission to perform this action",
+            detail={
+                "error": True,
+                "message": "You do not have permission to perform this action.",
+                "code": 403
+            },
             headers={"WWW-Authenticate": "Bearer"},
         )
     return user
@@ -75,7 +91,11 @@ def user_required(user: User = Depends(get_current_user)):
     if str(user.role) != "user":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only users have permission",
+            detail={
+                "error": True,
+                "message": "Only users have permission",
+                "code": 403
+            },
             headers={"WWW-Authenticate": "Bearer"},
         )
     return user
